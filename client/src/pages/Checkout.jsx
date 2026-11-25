@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { createOrderApi } from '../services/api';
+import LumeraLoader from '../components/LumeraLoader';
 
 export default function Checkout() {
   const { cart, cartSubtotal, showToast, clearCart } = useContext(ShopContext);
@@ -104,6 +105,10 @@ export default function Checkout() {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return <LumeraLoader text="Processing secure checkout & reserving items..." />;
+  }
 
   if (!isAuthenticated) {
     return (

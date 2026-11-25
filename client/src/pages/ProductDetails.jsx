@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ProductCard';
+import LumeraLoader from '../components/LumeraLoader';
 import {
   getProductById,
   getProducts,
@@ -140,20 +141,7 @@ export default function ProductDetails() {
 
   // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 animate-pulse">
-          <div className="aspect-square bg-zinc-200 border border-luxury-border" />
-          <div className="space-y-4 pt-4">
-            <div className="h-3 bg-zinc-200 rounded w-1/4" />
-            <div className="h-8 bg-zinc-200 rounded w-3/4" />
-            <div className="h-3 bg-zinc-200 rounded w-1/3" />
-            <div className="h-6 bg-zinc-200 rounded w-1/4 mt-6" />
-            <div className="h-12 bg-zinc-200 rounded mt-6" />
-          </div>
-        </div>
-      </div>
-    );
+    return <LumeraLoader text="Opening jewellery piece..." fullScreen={false} />;
   }
 
   // ── Error / not found state ────────────────────────────────────────────────
@@ -199,6 +187,9 @@ export default function ProductDetails() {
               src={activeImage || 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&auto=format&fit=crop&q=80'}
               alt={product.name}
               className="w-full h-full object-cover object-center"
+              onError={(e) => {
+                e.target.src = 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&auto=format&fit=crop&q=80';
+              }}
             />
           </div>
           {product.images?.length > 1 && (
@@ -213,7 +204,14 @@ export default function ProductDetails() {
                       : 'border-luxury-border'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover object-center" />
+                  <img
+                    src={img}
+                    alt=""
+                    className="w-full h-full object-cover object-center"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&auto=format&fit=crop&q=80';
+                    }}
+                  />
                 </button>
               ))}
             </div>

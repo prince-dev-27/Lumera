@@ -2,21 +2,8 @@ import React, { useContext, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import ProductCard from '../components/ProductCard';
 import useProducts from '../hooks/useProducts';
-
-// Loading skeleton card
-function SkeletonCard() {
-  return (
-    <div className="bg-[#FDFBF7] border border-luxury-border animate-pulse">
-      <div className="aspect-square bg-zinc-200" />
-      <div className="p-4 space-y-3">
-        <div className="h-2.5 bg-zinc-200 rounded w-1/3" />
-        <div className="h-3 bg-zinc-200 rounded w-3/4" />
-        <div className="h-2.5 bg-zinc-200 rounded w-1/4" />
-        <div className="h-8 bg-zinc-200 rounded mt-2" />
-      </div>
-    </div>
-  );
-}
+import CustomDropdown from '../components/CustomDropdown';
+import LumeraLoader from '../components/LumeraLoader';
 
 export default function Shop() {
   const {
@@ -164,18 +151,20 @@ export default function Shop() {
           </button>
 
           {/* Sort selector */}
-          <div className="flex items-center gap-2 flex-1 sm:flex-none">
+          <div className="flex items-center gap-2 flex-1 sm:flex-none min-w-[180px]">
             <span className="text-xs text-luxury-gray uppercase tracking-widest hidden sm:inline whitespace-nowrap">Sort:</span>
-            <select
-              value={sortOption}
-              onChange={(e) => { setSortOption(e.target.value); setCurrentPage(1); }}
-              className="bg-white border border-luxury-border text-xs px-3 py-2 text-luxury-charcoal focus:outline-none focus:border-luxury-gold flex-1 sm:flex-none"
-            >
-              <option value="newest">Newest Arrivals</option>
-              <option value="price-low-high">Price: Low to High</option>
-              <option value="price-high-low">Price: High to Low</option>
-              <option value="featured">Featured First</option>
-            </select>
+            <div className="flex-1 sm:w-48">
+              <CustomDropdown
+                value={sortOption}
+                onChange={(val) => { setSortOption(val); setCurrentPage(1); }}
+                options={[
+                  { value: 'newest', label: 'Newest Arrivals' },
+                  { value: 'price-low-high', label: 'Price: Low to High' },
+                  { value: 'price-high-low', label: 'Price: High to Low' },
+                  { value: 'featured', label: 'Featured First' },
+                ]}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -204,10 +193,10 @@ export default function Shop() {
             </div>
           )}
 
-          {/* Loading skeletons */}
+          {/* Loading state */}
           {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+            <div className="py-12">
+              <LumeraLoader text="Curating collection..." fullScreen={false} />
             </div>
           )}
 

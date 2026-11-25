@@ -20,7 +20,9 @@ export default function Footer() {
           
           {/* Brand Info */}
           <div className="space-y-4">
-            <h3 className="text-xl font-serif tracking-widest text-[#FDFBF7]">L U M E R A</h3>
+            <Link to="/" className="inline-flex items-center group min-w-0" aria-label="Lumera Jewellery Homepage">
+              <h3 className="text-lg sm:text-xl font-serif tracking-widest text-[#FDFBF7] group-hover:text-luxury-gold transition truncate min-w-0">L U M E R A</h3>
+            </Link>
             <p className="text-xs text-zinc-400 font-light leading-relaxed">
               Crafting premium, luxurious imitation jewellery for every occasion. Bringing affordable elegance to your daily life and special milestones.
             </p>
@@ -44,9 +46,8 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-zinc-400 font-light">
               <li><Link to="/about" className="hover:text-luxury-gold transition duration-300">About Us</Link></li>
               <li><Link to="/contact" className="hover:text-luxury-gold transition duration-300">Contact & Support</Link></li>
-              <li><a href="#" className="hover:text-luxury-gold transition duration-300">Shipping & Returns</a></li>
-              <li><a href="#" className="hover:text-luxury-gold transition duration-300">Care Guide</a></li>
-              <li><a href="#" className="hover:text-luxury-gold transition duration-300">Privacy Policy</a></li>
+              <li><Link to="/return-exchange-policy" className="hover:text-luxury-gold transition duration-300">Return & Exchange Policy</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-luxury-gold transition duration-300">Privacy Policy</Link></li>
             </ul>
           </div>
 

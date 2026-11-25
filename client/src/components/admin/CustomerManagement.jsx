@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Pagination from './Pagination';
+import CustomDropdown from '../CustomDropdown';
 
 export default function CustomerManagement({
   users = [],
@@ -102,18 +103,20 @@ export default function CustomerManagement({
             <label className="text-xs font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap hidden md:inline">
               Role:
             </label>
-            <select
-              value={roleFilter}
-              onChange={(e) => {
-                setRoleFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full sm:w-auto bg-stone-50 border border-luxury-border rounded-lg px-3 py-2 text-xs text-luxury-charcoal focus:outline-none focus:border-luxury-gold font-medium"
-            >
-              <option value="all">All Roles</option>
-              <option value="customer">Customer</option>
-              <option value="admin">Admin</option>
-            </select>
+            <div className="w-full sm:w-40">
+              <CustomDropdown
+                value={roleFilter}
+                onChange={(val) => {
+                  setRoleFilter(val);
+                  setCurrentPage(1);
+                }}
+                options={[
+                  { value: 'all', label: 'All Roles' },
+                  { value: 'customer', label: 'Customer' },
+                  { value: 'admin', label: 'Admin' },
+                ]}
+              />
+            </div>
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const {
   registerUser,
   loginUser,
@@ -11,9 +12,16 @@ const {
 } = require('../controllers/userController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
-// Public authentication routes
-router.post('/register', registerUser);
-router.post('/login', loginUser);
+// Brute-force rate limiter for authentication routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,
+  message: { success: false, message: 'Too many authentication attempts from this IP, please try again after 15 minutes.' }
+});
+
+// Public authentication routes with rate limiting
+router.post('/register', authLimiter, registerUser);
+router.post('/login', authLimiter, loginUser);
 router.post('/logout', logoutUser);
 
 // Protected user routes

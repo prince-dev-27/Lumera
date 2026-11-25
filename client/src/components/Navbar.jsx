@@ -70,13 +70,16 @@ export default function Navbar() {
             </svg>
           </button>
 
-          {/* Logo */}
+          {/* Brand Name */}
           <div className="flex-1 flex justify-center lg:justify-start min-w-0">
             <Link
               to="/"
-              className="text-base sm:text-2xl lg:text-3xl font-serif tracking-wider sm:tracking-widest text-luxury-charcoal flex items-center gap-2 truncate"
+              className="flex items-center group py-1 min-w-0"
+              aria-label="Lumera Jewellery Homepage"
             >
-              <span className="text-luxury-gold font-normal">L U M E R A</span>
+              <span className="text-sm sm:text-lg lg:text-2xl font-serif tracking-widest text-luxury-charcoal group-hover:text-luxury-gold transition font-normal truncate min-w-0">
+                L U M E R A
+              </span>
             </Link>
           </div>
 

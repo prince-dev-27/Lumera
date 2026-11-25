@@ -2,6 +2,21 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const asyncHandler = require('../middleware/asyncHandler');
 
+// Helper to sanitize product image URLs (fallback broken demo Cloudinary links)
+const sanitizeProduct = (p) => {
+  if (!p) return p;
+  const prodObj = typeof p.toObject === 'function' ? p.toObject() : p;
+  if (Array.isArray(prodObj.images)) {
+    prodObj.images = prodObj.images.map(img => {
+      if (typeof img === 'string' && (img.includes('res.cloudinary.com/demo/') || !img.trim())) {
+        return 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&auto=format&fit=crop&q=80';
+      }
+      return img;
+    });
+  }
+  return prodObj;
+};
+
 // @desc    Get all products with filtering, sorting, search, and pagination
 // @route   GET /api/products
 // @access  Public
@@ -110,13 +125,15 @@ const getProducts = asyncHandler(async (req, res) => {
     Product.countDocuments(filter),
   ]);
 
+  const sanitizedProducts = products.map(sanitizeProduct);
+
   res.status(200).json({
     success: true,
-    count: products.length,
+    count: sanitizedProducts.length,
     total,
     page: pageNum,
     pages: Math.ceil(total / limitNum),
-    data: products,
+    data: sanitizedProducts,
   });
 });
 
@@ -138,7 +155,7 @@ const getProductById = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: product,
+    data: sanitizeProduct(product),
   });
 });
 

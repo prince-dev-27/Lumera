@@ -77,9 +77,14 @@ export default function Login() {
         </button>
       </div>
 
-      <h2 className="text-xl font-serif text-center text-luxury-charcoal">
-        {isLogin ? 'Welcome Back to Lumera' : 'Create Account'}
-      </h2>
+      <div className="text-center pt-2 space-y-1">
+        <h2 className="text-sm uppercase tracking-widest font-serif text-luxury-gold font-semibold">
+          L U M E R A
+        </h2>
+        <h3 className="text-xl font-serif text-center text-luxury-charcoal">
+          {isLogin ? 'Welcome Back to Lumera' : 'Create Account'}
+        </h3>
+      </div>
 
       {/* Error Alert */}
       {formError && (

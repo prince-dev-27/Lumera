@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { validateCouponApi } from '../services/api';
+import LumeraLoader from '../components/LumeraLoader';
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -90,11 +91,7 @@ export default function Cart() {
         <h1 className="text-3xl font-serif text-luxury-charcoal pb-8 border-b border-luxury-border">
           Your Shopping Bag
         </h1>
-        <div className="py-20 text-center space-y-4 animate-pulse">
-          <div className="w-16 h-16 bg-zinc-200 rounded-full mx-auto" />
-          <div className="h-6 bg-zinc-200 rounded w-48 mx-auto" />
-          <div className="h-4 bg-zinc-200 rounded w-64 mx-auto" />
-        </div>
+        <LumeraLoader text="Loading your shopping bag..." fullScreen={false} />
       </div>
     );
   }
@@ -153,6 +150,9 @@ export default function Cart() {
                         src={image}
                         alt={product.name}
                         className="w-full h-full object-cover object-center"
+                        onError={(e) => {
+                          e.target.src = 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&auto=format&fit=crop&q=80';
+                        }}
                       />
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center">

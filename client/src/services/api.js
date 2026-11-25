@@ -16,9 +16,35 @@ function authHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+let globalNetworkErrorHandler = null;
+let lastNetworkErrorTime = 0;
+const NETWORK_ERROR_COOLDOWN = 10000; // 10 seconds
+const DEFAULT_TIMEOUT = 15000; // 15 seconds
+
+/**
+ * Register a global network error handler callback.
+ * @param {Function} handler
+ */
+export function setGlobalNetworkErrorHandler(handler) {
+  globalNetworkErrorHandler = handler;
+}
+
+function triggerNetworkError(message) {
+  const now = Date.now();
+  if (now - lastNetworkErrorTime > NETWORK_ERROR_COOLDOWN) {
+    lastNetworkErrorTime = now;
+    if (typeof globalNetworkErrorHandler === 'function') {
+      globalNetworkErrorHandler(message);
+    }
+  }
+}
+
 /** Generic request helper */
 async function request(endpoint, options = {}) {
-  const { body, method = 'GET', ...rest } = options;
+  const { body, method = 'GET', timeout = DEFAULT_TIMEOUT, ...rest } = options;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   const config = {
     method,
@@ -27,6 +53,7 @@ async function request(endpoint, options = {}) {
       ...authHeader(),
       ...(rest.headers || {}),
     },
+    signal: controller.signal,
     ...rest,
   };
 
@@ -34,11 +61,49 @@ async function request(endpoint, options = {}) {
     config.body = JSON.stringify(body);
   }
 
-  const res = await fetch(`${BASE}${endpoint}`, config);
-  const data = await res.json();
+  let res;
+  try {
+    res = await fetch(`${BASE}${endpoint}`, config);
+  } catch (err) {
+    clearTimeout(timeoutId);
+    const isTimeout = err.name === 'AbortError' || err.message?.includes('aborted');
+    const netErr = new Error(
+      isTimeout
+        ? 'Request timed out. Please check your network connection.'
+        : 'Unable to connect to the backend server. Please check your internet connection.'
+    );
+    netErr.isNetworkError = true;
+    triggerNetworkError(netErr.message);
+    throw netErr;
+  }
+
+  clearTimeout(timeoutId);
+
+  let data;
+  try {
+    data = await res.json();
+  } catch (_jsonErr) {
+    if (!res.ok || res.status === 502 || res.status === 503 || res.status === 504) {
+      const netErr = new Error('The server is currently unreachable. Please try again later.');
+      netErr.isNetworkError = true;
+      triggerNetworkError(netErr.message);
+      throw netErr;
+    }
+    throw new Error(`Invalid server response (${res.status})`);
+  }
 
   if (!res.ok || data.success === false) {
-    throw new Error(data.message || `Request failed: ${res.status}`);
+    if (res.status === 502 || res.status === 503 || res.status === 504) {
+      const netErr = new Error(data.message || 'The server is temporarily unavailable.');
+      netErr.isNetworkError = true;
+      triggerNetworkError(netErr.message);
+      throw netErr;
+    }
+
+    const err = new Error(data.message || `Request failed: ${res.status}`);
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
 
   return data;
@@ -116,14 +181,28 @@ export async function uploadProductImagesApi(files) {
   const token = getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-  const res = await fetch(`${BASE}/upload/images`, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
+  let res;
+  try {
+    res = await fetch(`${BASE}/upload/images`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+  } catch (_err) {
+    const netErr = new Error('Unable to connect to the backend server for image upload.');
+    netErr.isNetworkError = true;
+    triggerNetworkError(netErr.message);
+    throw netErr;
+  }
 
-  const data = await res.json();
+  const data = await res.json().catch(() => ({ success: false, message: 'Invalid server response' }));
   if (!res.ok || data.success === false) {
+    if (res.status === 502 || res.status === 503 || res.status === 504) {
+      const netErr = new Error('The server is temporarily unavailable.');
+      netErr.isNetworkError = true;
+      triggerNetworkError(netErr.message);
+      throw netErr;
+    }
     throw new Error(data.message || `Image upload failed: ${res.status}`);
   }
 

@@ -7,6 +7,7 @@ import {
   deleteProductImageApi,
 } from '../../services/api';
 import Pagination from './Pagination';
+import CustomDropdown from '../CustomDropdown';
 
 const EMPTY_PRODUCT = {
   name: '',
@@ -323,33 +324,35 @@ export default function ProductManagement({
           </div>
 
           {/* Category Dropdown */}
-          <select
-            value={selectedCategory}
-            onChange={(e) => {
-              setSelectedCategory(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="border border-luxury-border px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-luxury-gold bg-stone-50 text-luxury-charcoal font-medium"
-          >
-            <option value="all">All Categories</option>
-            {categories.map((c) => (
-              <option key={c._id} value={c._id}>{c.name}</option>
-            ))}
-          </select>
+          <div className="w-full sm:w-48">
+            <CustomDropdown
+              value={selectedCategory}
+              onChange={(val) => {
+                setSelectedCategory(val);
+                setCurrentPage(1);
+              }}
+              options={[
+                { value: 'all', label: 'All Categories' },
+                ...categories.map((c) => ({ value: c._id, label: c.name }))
+              ]}
+            />
+          </div>
 
           {/* Status Dropdown */}
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="border border-luxury-border px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-luxury-gold bg-stone-50 text-luxury-charcoal font-medium"
-          >
-            <option value="all">All Statuses</option>
-            <option value="active">Active Only</option>
-            <option value="disabled">Disabled Only</option>
-          </select>
+          <div className="w-full sm:w-44">
+            <CustomDropdown
+              value={statusFilter}
+              onChange={(val) => {
+                setStatusFilter(val);
+                setCurrentPage(1);
+              }}
+              options={[
+                { value: 'all', label: 'All Statuses' },
+                { value: 'active', label: 'Active Only' },
+                { value: 'disabled', label: 'Disabled Only' },
+              ]}
+            />
+          </div>
         </div>
 
         <span className="text-xs text-stone-500 font-medium self-end lg:self-center">
@@ -396,7 +399,9 @@ export default function ProductManagement({
                               src={mainImg}
                               alt={p.name}
                               className="w-10 h-10 object-cover rounded-lg border border-stone-200 shrink-0"
-                              onError={(e) => { e.target.style.display = 'none'; }}
+                              onError={(e) => {
+                                e.target.src = 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&auto=format&fit=crop&q=80';
+                              }}
                             />
                           ) : (
                             <div className="w-10 h-10 bg-amber-50 rounded-lg border border-amber-200 flex items-center justify-center text-amber-700 font-bold shrink-0 text-[10px]">
@@ -496,7 +501,9 @@ export default function ProductManagement({
                         src={mainImg}
                         alt={p.name}
                         className="w-14 h-14 object-cover rounded-lg border border-stone-200 shrink-0"
-                        onError={(e) => { e.target.style.display = 'none'; }}
+                        onError={(e) => {
+                          e.target.src = 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&auto=format&fit=crop&q=80';
+                        }}
                       />
                     ) : (
                       <div className="w-14 h-14 bg-amber-50 rounded-lg border border-amber-200 flex items-center justify-center text-amber-700 font-bold shrink-0 text-xs">
@@ -624,18 +631,12 @@ export default function ProductManagement({
               <Field label="Stock Quantity" name="stock" type="number" value={productForm.stock} onChange={handleFormChange} required />
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-widest text-stone-600 font-bold block">Category *</label>
-                <select
-                  name="category"
+                <CustomDropdown
                   value={productForm.category}
-                  onChange={handleFormChange}
-                  required
-                  className="w-full border border-luxury-border px-3 py-2 text-xs text-luxury-charcoal focus:outline-none focus:border-luxury-gold bg-white rounded-lg"
-                >
-                  <option value="">— Select Category —</option>
-                  {categories.map((c) => (
-                    <option key={c._id} value={c._id}>{c.name}</option>
-                  ))}
-                </select>
+                  onChange={(val) => setProductForm((prev) => ({ ...prev, category: val }))}
+                  placeholder="— Select Category —"
+                  options={categories.map((c) => ({ value: c._id, label: c.name }))}
+                />
               </div>
             </div>
 

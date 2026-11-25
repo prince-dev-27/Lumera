@@ -52,16 +52,18 @@ export default function AdminHeader({
         </button>
 
         {/* Page Title & Breadcrumb */}
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-luxury-gold block leading-none">
-              Lumera Admin
-            </span>
-            <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" title="System Status: Active" />
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-luxury-gold block leading-none">
+                Lumera Admin
+              </span>
+              <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" title="System Status: Active" />
+            </div>
+            <h1 className="text-base sm:text-lg lg:text-xl font-serif text-luxury-charcoal font-bold truncate leading-tight">
+              {tabTitles[activeTab] || 'Admin Dashboard'}
+            </h1>
           </div>
-          <h1 className="text-base sm:text-lg lg:text-xl font-serif text-luxury-charcoal font-bold truncate leading-tight">
-            {tabTitles[activeTab] || 'Admin Dashboard'}
-          </h1>
         </div>
       </div>
 

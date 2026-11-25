@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ShopProvider, ShopContext } from './context/ShopContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import LumeraLoader from './components/LumeraLoader';
 
-// Layout Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
@@ -25,7 +25,44 @@ import MyOrders from './pages/MyOrders';
 import AdminDashboard from './pages/AdminDashboard';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import ReturnExchangePolicy from './pages/ReturnExchangePolicy';
 import NotFound from './pages/NotFound';
+
+function NetworkErrorBanner() {
+  const { networkErrorBanner, dismissNetworkError } = React.useContext(ShopContext);
+  if (!networkErrorBanner) return null;
+
+  return (
+    <div className="bg-red-950 text-red-100 px-4 py-3 shadow-lg border-b border-red-800 flex items-center justify-between text-xs sm:text-sm font-medium z-50 sticky top-0">
+      <div className="flex items-center gap-3 max-w-7xl mx-auto w-full px-4 justify-between">
+        <div className="flex items-center gap-2.5">
+          <svg className="w-5 h-5 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{networkErrorBanner}</span>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => window.location.reload()}
+            className="px-3 py-1 bg-red-900 hover:bg-red-800 text-white rounded text-xs font-semibold tracking-wide transition border border-red-700"
+          >
+            Retry Connection
+          </button>
+          <button
+            onClick={dismissNetworkError}
+            className="text-red-300 hover:text-white p-1 transition"
+            title="Dismiss"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ToastBanner() {
   const { toastNotice } = React.useContext(ShopContext);
@@ -61,10 +98,16 @@ function ToastBanner() {
 
 function MainLayout() {
   const location = useLocation();
+  const { loading: authLoading } = useAuth();
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  if (authLoading) {
+    return <LumeraLoader text="Initializing Lumera Vault..." />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FDFBF7] relative">
+      <NetworkErrorBanner />
       <ToastBanner />
       {/* Main Navigation (Hidden on Admin routes) */}
       {!isAdminRoute && <Navbar />}
@@ -126,6 +169,8 @@ function MainLayout() {
 
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/return-exchange-policy" element={<ReturnExchangePolicy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

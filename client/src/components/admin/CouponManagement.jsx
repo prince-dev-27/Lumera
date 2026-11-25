@@ -7,6 +7,7 @@ import {
   deleteCouponApi
 } from '../../services/api';
 import Pagination from './Pagination';
+import CustomDropdown from '../CustomDropdown';
 
 export default function CouponManagement() {
   const [coupons, setCoupons] = useState([]);
@@ -441,14 +442,14 @@ export default function CouponManagement() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">Discount Type</label>
-                  <select
+                  <CustomDropdown
                     value={formData.discountType}
-                    onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
-                    className="w-full border border-stone-300 px-3 py-2 rounded-lg focus:outline-none focus:border-luxury-gold text-xs"
-                  >
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="fixed">Fixed Amount (₹)</option>
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, discountType: val })}
+                    options={[
+                      { value: 'percentage', label: 'Percentage (%)' },
+                      { value: 'fixed', label: 'Fixed Amount (₹)' },
+                    ]}
+                  />
                 </div>
 
                 <div>

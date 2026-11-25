@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getAllReviewsApi, approveReviewApi, deleteReviewApi } from '../../services/api';
 import Pagination from './Pagination';
+import CustomDropdown from '../CustomDropdown';
 
 export default function ReviewManagement() {
   const [reviews, setReviews] = useState([]);
@@ -140,18 +141,20 @@ export default function ReviewManagement() {
           </div>
 
           {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="w-full sm:w-auto bg-stone-50 border border-luxury-border rounded-lg px-3 py-2 text-xs text-luxury-charcoal focus:outline-none focus:border-luxury-gold font-medium"
-          >
-            <option value="all">All Moderation Statuses</option>
-            <option value="approved">Approved Only</option>
-            <option value="hidden">Hidden Only</option>
-          </select>
+          <div className="w-full sm:w-56">
+            <CustomDropdown
+              value={statusFilter}
+              onChange={(val) => {
+                setStatusFilter(val);
+                setCurrentPage(1);
+              }}
+              options={[
+                { value: 'all', label: 'All Moderation Statuses' },
+                { value: 'approved', label: 'Approved Only' },
+                { value: 'hidden', label: 'Hidden Only' },
+              ]}
+            />
+          </div>
         </div>
 
         <span className="text-xs text-stone-500 font-medium self-end sm:self-center">

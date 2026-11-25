@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getAllOrdersApi, updateOrderStatusApi, getOrderByIdApi } from '../../services/api';
 import { useNotifications } from '../../context/NotificationContext';
 import Pagination from './Pagination';
+import CustomDropdown from '../CustomDropdown';
 
 const ORDER_STATUS_OPTIONS = [
   'Pending',
@@ -202,21 +203,19 @@ export default function OrderManagement({ initialSelectedOrderId, onClearInitial
             <label className="text-xs font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap hidden sm:inline">
               Filter Status:
             </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full sm:w-auto bg-stone-50 border border-luxury-border rounded-lg px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-luxury-gold font-medium"
-            >
-              <option value="all">All Statuses</option>
-              {ORDER_STATUS_OPTIONS.map((st) => (
-                <option key={st} value={st}>
-                  {st}
-                </option>
-              ))}
-            </select>
+            <div className="w-full sm:w-48">
+              <CustomDropdown
+                value={statusFilter}
+                onChange={(val) => {
+                  setStatusFilter(val);
+                  setCurrentPage(1);
+                }}
+                options={[
+                  { value: 'all', label: 'All Statuses' },
+                  ...ORDER_STATUS_OPTIONS.map((st) => ({ value: st, label: st }))
+                ]}
+              />
+            </div>
           </div>
 
           {/* Search Box */}
@@ -472,17 +471,11 @@ export default function OrderManagement({ initialSelectedOrderId, onClearInitial
                     <label className="block text-[10px] uppercase tracking-widest text-stone-500 font-bold mb-1">
                       Select New Status:
                     </label>
-                    <select
+                    <CustomDropdown
                       value={newStatus}
-                      onChange={(e) => setNewStatus(e.target.value)}
-                      className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs font-bold text-stone-900 focus:outline-none focus:border-luxury-gold"
-                    >
-                      {ORDER_STATUS_OPTIONS.map((st) => (
-                        <option key={st} value={st}>
-                          {st}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setNewStatus(val)}
+                      options={ORDER_STATUS_OPTIONS.map((st) => ({ value: st, label: st }))}
+                    />
                   </div>
                   <button
                     type="submit"

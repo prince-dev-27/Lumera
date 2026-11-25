@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import useCategories from '../hooks/useCategories';
 import { useAuth } from './AuthContext';
 import {
@@ -12,7 +12,8 @@ import {
   addToWishlistApi,
   removeFromWishlistApi,
   moveToCartApi,
-  syncWishlistApi
+  syncWishlistApi,
+  setGlobalNetworkErrorHandler
 } from '../services/api';
 
 export const ShopContext = createContext();
@@ -34,6 +35,9 @@ export const ShopProvider = ({ children }) => {
   const [cartLoading, setCartLoading] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [toastNotice, setToastNotice] = useState(null);
+  const [networkErrorBanner, setNetworkErrorBanner] = useState(null);
+
+  const productVersionRef = useRef({});
 
   // Helper to show brief toast notification
   const showToast = useCallback((message, type = 'error') => {
@@ -41,6 +45,19 @@ export const ShopProvider = ({ children }) => {
     setTimeout(() => {
       setToastNotice(null);
     }, 4000);
+  }, []);
+
+  const dismissNetworkError = useCallback(() => {
+    setNetworkErrorBanner(null);
+  }, []);
+
+  useEffect(() => {
+    setGlobalNetworkErrorHandler((message) => {
+      setNetworkErrorBanner(message);
+    });
+    return () => {
+      setGlobalNetworkErrorHandler(null);
+    };
   }, []);
 
   // ── Shop filter / sort state ───────────────────────────────────────────────
@@ -233,26 +250,35 @@ export const ShopProvider = ({ children }) => {
       return;
     }
 
+    // Optimistic local update for instant UI response and smooth rapid interactions
+    setCart((prev) =>
+      prev.map((item) =>
+        (item.product._id || item.product.id) === productId
+          ? { ...item, quantity: qty }
+          : item
+      )
+    );
+
     if (isAuthenticated) {
-      setCartLoading(true);
+      const currentVersion = (productVersionRef.current[productId] || 0) + 1;
+      productVersionRef.current[productId] = currentVersion;
+
       try {
         const res = await updateCartItemApi(productId, qty);
-        if (res.success) {
+        // Only apply server response if this remains the latest request for this product
+        if (res.success && productVersionRef.current[productId] === currentVersion) {
           setCart(res.data);
         }
       } catch (err) {
-        showToast(err.message || 'Failed to update quantity', 'error');
-      } finally {
-        setCartLoading(false);
+        if (productVersionRef.current[productId] === currentVersion) {
+          showToast(err.message || 'Failed to update quantity', 'error');
+          // Resync cart from server on failure
+          try {
+            const cartRes = await getCartApi();
+            if (cartRes.success) setCart(cartRes.data);
+          } catch (_e) {}
+        }
       }
-    } else {
-      setCart((prev) =>
-        prev.map((item) =>
-          (item.product._id || item.product.id) === productId
-            ? { ...item, quantity: qty }
-            : item
-        )
-      );
     }
   };
 
@@ -383,9 +409,11 @@ export const ShopProvider = ({ children }) => {
         wishlistLoading,
         toggleWishlist,
         moveToCart,
-        // Toast Notice
+        // Toast Notice & Network Error
         toastNotice,
         showToast,
+        networkErrorBanner,
+        dismissNetworkError,
         // Filter / sort / pagination state
         searchQuery,
         setSearchQuery,

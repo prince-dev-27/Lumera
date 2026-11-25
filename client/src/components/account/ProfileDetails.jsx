@@ -15,6 +15,24 @@ export default function ProfileDetails() {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
+  React.useEffect(() => {
+    if (user && !isEditing) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+      });
+    }
+  }, [user, isEditing]);
+
+  React.useEffect(() => {
+    if (user && !isEditing) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+      });
+    }
+  }, [user, isEditing]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
